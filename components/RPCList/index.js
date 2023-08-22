@@ -221,7 +221,10 @@ const Row = ({ values, chain, privacy, lang, className }) => {
             <button
               className="px-2 py-[2px] -my-[2px] text-center text-sm dark:hover:bg-[#171717] hover:bg-[#EAEAEA] rounded-[50px]"
               onClick={async () => {
-                await pushRpc(data);
+                await pushRpc({
+                  ...data,
+                  chain: chain.chain,
+                });
               }}
             >
               Add RPC

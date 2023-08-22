@@ -24,14 +24,16 @@ add `.env.local` file to root directory
 RPC_URL=http://10.13.14.230:8090/api/node/save
 ```
 
-post url `utils/rpc.js`  
+post code in `utils/rpc.js` path  
 ```javascript
 export const pushRpc = async (data)=>{
+  console.log(data);
   const url = process.env.RPC_URL
   if(url){
+    const protocol = data.url.startsWith("http") ? "HTTP" : "WSS";
     const param = {
-      chain: chain.chain,
-      protocol: "HTTP",
+      chain: data.chain,
+      protocol: protocol,
       url: data.url,
     };
     const response = await fetch(url, {
@@ -43,7 +45,7 @@ export const pushRpc = async (data)=>{
     });
     const result = await response.json();
     if (result && result.success) {
-      alert("添加成功");
+      alert("sucess add node");
     } else {
       alert(result.errMessage);
     }
