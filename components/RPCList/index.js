@@ -9,6 +9,7 @@ import { useLlamaNodesRpcData } from "../../hooks/useLlamaNodesRpcData";
 import { FATHOM_DROPDOWN_EVENTS_ID } from "../../hooks/useAnalytics";
 import { useAccount, useRpcStore } from "../../stores";
 import { renderProviderText } from "../../utils";
+import {pushRpc} from "../../utils/rpc";
 import { Tooltip } from "../../components/Tooltip";
 
 export default function RPCList({ chain, lang }) {
@@ -217,6 +218,14 @@ const Row = ({ values, chain, privacy, lang, className }) => {
           <Shimmer />
         ) : (
           <>
+            <button
+              className="px-2 py-[2px] -my-[2px] text-center text-sm dark:hover:bg-[#171717] hover:bg-[#EAEAEA] rounded-[50px]"
+              onClick={async () => {
+                await pushRpc(data);
+              }}
+            >
+              Add RPC
+            </button>
             {!data.disableConnect && (
               <button
                 className="px-2 py-[2px] -my-[2px] text-center text-sm dark:hover:bg-[#171717] hover:bg-[#EAEAEA] rounded-[50px]"
