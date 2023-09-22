@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import * as Fathom from "fathom-client";
 // import { useTranslations } from "next-intl";
-import { notTranslation as useTranslations } from "../../utils";
+import { notTranslation as useTranslations, renderProviderText } from "../../utils";
 import useRPCData from "../../hooks/useRPCData";
 import useAddToNetwork from "../../hooks/useAddToNetwork";
 import { useClipboard } from "../../hooks/useClipboard";
 import { useLlamaNodesRpcData } from "../../hooks/useLlamaNodesRpcData";
 import { FATHOM_DROPDOWN_EVENTS_ID } from "../../hooks/useAnalytics";
 import { useAccount, useRpcStore } from "../../stores";
-import { renderProviderText } from "../../utils";
-import {pushRpc} from "../../utils/rpc";
+import { pushRpc } from "../../utils/rpc";
 import { Tooltip } from "../../components/Tooltip";
 
 export default function RPCList({ chain, lang }) {
@@ -22,33 +21,33 @@ export default function RPCList({ chain, lang }) {
   const data = useMemo(() => {
     const sortedData = sortChains
       ? chains?.sort((a, b) => {
-          if (a.isLoading) {
+        if (a.isLoading) {
+          return 1;
+        }
+
+        const h1 = a?.data?.height;
+        const h2 = b?.data?.height;
+        const l1 = a?.data?.latency;
+        const l2 = b?.data?.latency;
+
+        if (!h2) {
+          return -1;
+        }
+
+        if (h2 - h1 > 0) {
+          return 1;
+        }
+        if (h2 - h1 < 0) {
+          return -1;
+        }
+        if (h1 === h2) {
+          if (l1 - l2 < 0) {
+            return -1;
+          } else {
             return 1;
           }
-
-          const h1 = a?.data?.height;
-          const h2 = b?.data?.height;
-          const l1 = a?.data?.latency;
-          const l2 = b?.data?.latency;
-
-          if (!h2) {
-            return -1;
-          }
-
-          if (h2 - h1 > 0) {
-            return 1;
-          }
-          if (h2 - h1 < 0) {
-            return -1;
-          }
-          if (h1 === h2) {
-            if (l1 - l2 < 0) {
-              return -1;
-            } else {
-              return 1;
-            }
-          }
-        })
+        }
+      })
       : chains;
 
     const topRpc = sortedData[0]?.data ?? {};
@@ -81,7 +80,8 @@ export default function RPCList({ chain, lang }) {
   const { rpcData, hasLlamaNodesRpc } = useLlamaNodesRpcData(chain.chainId, data);
 
   return (
-    <div className="shadow dark:bg-[#0D0D0D] bg-white p-8 rounded-[10px] flex flex-col gap-3 overflow-hidden col-span-full relative overflow-x-auto">
+    <div
+      className="shadow dark:bg-[#0D0D0D] bg-white p-8 rounded-[10px] flex flex-col gap-3 overflow-hidden col-span-full relative overflow-x-auto">
       <table className="m-0 border-collapse whitespace-nowrap dark:text-[#B3B3B3] text-black">
         <caption className="relative w-full px-3 py-1 text-base font-medium border border-b-0">
           <span className="mr-4">{`${chain.name} RPC URL List`}</span>
@@ -93,14 +93,16 @@ export default function RPCList({ chain, lang }) {
               <span>
                 <span className="sr-only">Pause</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                  <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z" />
+                  <path
+                    d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z" />
                 </svg>
               </span>
             ) : (
               <span>
                 <span className="sr-only">Resume</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                  <path
+                    d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                 </svg>
               </span>
             )}
@@ -108,35 +110,35 @@ export default function RPCList({ chain, lang }) {
           </button>
         </caption>
         <thead>
-          <tr>
-            <th className="px-3 py-1 font-medium border">RPC Server Address</th>
-            <th className="px-3 py-1 font-medium border">Height</th>
-            <th className="px-3 py-1 font-medium border">Latency</th>
-            <th className="px-3 py-1 font-medium border">Score</th>
-            <th className="px-3 py-1 font-medium border">Privacy</th>
-            <th className="px-3 py-1 font-medium border"></th>
-          </tr>
+        <tr>
+          <th className="px-3 py-1 font-medium border">RPC Server Address</th>
+          <th className="px-3 py-1 font-medium border">Height</th>
+          <th className="px-3 py-1 font-medium border">Latency</th>
+          <th className="px-3 py-1 font-medium border">Score</th>
+          <th className="px-3 py-1 font-medium border">Privacy</th>
+          <th className="px-3 py-1 font-medium border"></th>
+        </tr>
         </thead>
 
         <tbody>
-          {rpcData.map((item, index) => {
-            let className = "bg-inherit";
+        {rpcData.map((item, index) => {
+          let className = "bg-inherit";
 
-            if (hasLlamaNodesRpc && index === 0) {
-              className = "dark:bg-[#0D0D0D] bg-[#F9F9F9]";
-            }
+          if (hasLlamaNodesRpc && index === 0) {
+            className = "dark:bg-[#0D0D0D] bg-[#F9F9F9]";
+          }
 
-            return (
-              <Row
-                values={item}
-                chain={chain}
-                key={"rpc" + index}
-                privacy={urlToData[item.data.url]}
-                lang={lang}
-                className={className}
-              />
-            );
-          })}
+          return (
+            <Row
+              values={item}
+              chain={chain}
+              key={"rpc" + index}
+              privacy={urlToData[item.data.url]}
+              lang={lang}
+              className={className}
+            />
+          );
+        })}
         </tbody>
       </table>
     </div>
@@ -221,9 +223,15 @@ const Row = ({ values, chain, privacy, lang, className }) => {
             <button
               className="px-2 py-[2px] -my-[2px] text-center text-sm dark:hover:bg-[#171717] hover:bg-[#EAEAEA] rounded-[50px]"
               onClick={async () => {
-                await pushRpc({
+                pushRpc({
                   ...data,
                   chain: chain.chain,
+                }).then(res => {
+                  if (res && res.success) {
+                    alert("sucess add node");
+                  } else {
+                    alert(res.errMessage);
+                  }
                 });
               }}
             >

@@ -1,7 +1,7 @@
-export const pushRpc = async (data)=>{
+export const pushRpc = async (data) => {
   console.log(data);
-  const url = process.env.RPC_URL
-  if(url){
+  const url = process.env.RPC_URL;
+  if (url) {
     const protocol = data.url.startsWith("http") ? "HTTP" : "WSS";
     const param = {
       chain: data.chain,
@@ -15,11 +15,6 @@ export const pushRpc = async (data)=>{
       },
       body: JSON.stringify(param),
     });
-    const result = await response.json();
-    if (result && result.success) {
-      alert("sucess add node");
-    } else {
-      alert(result.errMessage);
-    }
+    return await response.json();
   }
-}
+};
