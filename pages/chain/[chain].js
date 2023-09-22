@@ -3,11 +3,13 @@ import Head from "next/head";
 import Link from "next/link";
 // import { useTranslations } from "next-intl";
 import { notTranslation as useTranslations } from "../../utils";
-import { populateChain, fetcher } from "../../utils/fetch";
+import { fetcher, populateChain } from "../../utils/fetch";
 import AddNetwork from "../../components/chain";
 import Layout from "../../components/Layout";
 import RPCList from "../../components/RPCList";
 import chainIds from "../../constants/chainIds.json";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export async function getStaticProps({ params }) {
   const chains = await fetcher("https://chainid.network/chains.json");
@@ -85,30 +87,42 @@ function Chain({ chain }) {
               className="rounded-full flex-shrink-0 flex relative"
               alt={chain.name + " logo"}
             />
-            <span className="text-xl font-semibold overflow-hidden text-ellipsis relative top-[1px] dark:text-[#B3B3B3]">{chain.name}</span>
+            <span
+              className="text-xl font-semibold overflow-hidden text-ellipsis relative top-[1px] dark:text-[#B3B3B3]">{chain.name}</span>
           </Link>
 
           <table>
             <thead>
-              <tr>
-                <th className="font-normal text-gray-500 dark:text-[#B3B3B3]">ChainID</th>
-                <th className="font-normal text-gray-500 dark:text-[#B3B3B3]">{t("currency")}</th>
-              </tr>
+            <tr>
+              <th className="font-normal text-gray-500 dark:text-[#B3B3B3]">ChainID</th>
+              <th className="font-normal text-gray-500 dark:text-[#B3B3B3]">{t("currency")}</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="text-center font-bold px-4 dark:text-[#B3B3B3]">{`${chain.chainId}(0x${Number(chain.chainId).toString(16)})`}</td>
-                <td className="text-center font-bold px-4 dark:text-[#B3B3B3]">
-                  {chain.nativeCurrency ? chain.nativeCurrency.symbol : "none"}
-                </td>
-              </tr>
+            <tr>
+              <td
+                className="text-center font-bold px-4 dark:text-[#B3B3B3]">{`${chain.chainId}(0x${Number(chain.chainId).toString(16)})`}</td>
+              <td className="text-center font-bold px-4 dark:text-[#B3B3B3]">
+                {chain.nativeCurrency ? chain.nativeCurrency.symbol : "none"}
+              </td>
+            </tr>
             </tbody>
           </table>
 
           <AddNetwork chain={chain} buttonOnly lang="en" />
         </div>
 
-        <RPCList chain={chain} lang="en" />
+        <RPCList chain={chain} lang="en" rpcBack={async (res) => {
+          console.log(res);
+          const data = await res.json();
+          console.log(data);
+          if (data && data.success) {
+            toast("node add success", { hideProgressBar: true, autoClose: 2000, type: "success" });
+          } else {
+            toast(data.errMessage, { hideProgressBar: true, autoClose: 2000, type: "error" });
+          }
+        }} />
+        <ToastContainer />
       </Layout>
     </>
   );

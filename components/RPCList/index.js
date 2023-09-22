@@ -11,7 +11,7 @@ import { useAccount, useRpcStore } from "../../stores";
 import { pushRpc } from "../../utils/rpc";
 import { Tooltip } from "../../components/Tooltip";
 
-export default function RPCList({ chain, lang }) {
+export default ({ chain, lang, rpcBack }) => {
   const [sortChains, setSorting] = useState(true);
 
   const urlToData = chain.rpc.reduce((all, c) => ({ ...all, [c.url]: c }), {});
@@ -136,6 +136,7 @@ export default function RPCList({ chain, lang }) {
               privacy={urlToData[item.data.url]}
               lang={lang}
               className={className}
+              rpcBack={rpcBack}
             />
           );
         })}
@@ -166,7 +167,7 @@ function PrivacyIcon({ tracking, isOpenSource = false }) {
   return <EmptyIcon />;
 }
 
-const Row = ({ values, chain, privacy, lang, className }) => {
+const Row = ({ values, chain, privacy, lang, className, rpcBack }) => {
   const t = useTranslations("Common", lang);
   const { data, isLoading, refetch } = values;
 
@@ -222,16 +223,12 @@ const Row = ({ values, chain, privacy, lang, className }) => {
           <>
             <button
               className="px-2 py-[2px] -my-[2px] text-center text-sm dark:hover:bg-[#171717] hover:bg-[#EAEAEA] rounded-[50px]"
-              onClick={async () => {
+              onClick={() => {
                 pushRpc({
                   ...data,
                   chain: chain.chain,
-                }).then(res => {
-                  if (res && res.success) {
-                    alert("sucess add node");
-                  } else {
-                    alert(res.errMessage);
-                  }
+                }).then((res) => {
+                  rpcBack(res);
                 });
               }}
             >
